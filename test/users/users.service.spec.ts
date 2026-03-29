@@ -99,6 +99,32 @@ describe('UsersService', () => {
     });
   });
 
+  describe('getByEmail', () => {
+    it('should return user by email', async () => {
+      prisma.user.findFirst.mockResolvedValue(mockUser);
+      (UserMapper.toResponseDto as jest.Mock).mockReturnValue(mockUser);
+
+      const result = await service.getByEmail('user@test.com');
+
+      expect(prisma.user.findFirst).toHaveBeenCalledWith({
+        where: { email: 'user@test.com' },
+      });
+      expect(result).toEqual(mockUser);
+    });
+
+    it('should throw if user not found', async () => {
+      prisma.user.findFirst.mockResolvedValue(null);
+
+      await expect(service.getByEmail('user@test.com')).rejects.toThrow(
+        UserNotFoundException,
+      );
+
+      expect(prisma.user.findFirst).toHaveBeenCalledWith({
+        where: { email: 'user@test.com' },
+      });
+    });
+  });
+
   describe('create', () => {
     it('should create user', async () => {
       prisma.user.findFirst.mockResolvedValue(null);

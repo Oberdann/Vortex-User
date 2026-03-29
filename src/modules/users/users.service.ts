@@ -35,6 +35,27 @@ export class UsersService implements IUsersService {
     return response;
   }
 
+  async getByEmail(email: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { email },
+    });
+
+    if (!user) {
+      this.logger.warn(
+        { email },
+        'Usuário procurado com email não encontrado.',
+      );
+
+      throw new UserNotFoundException(
+        `Usuário com email ${email} não encontrado.`,
+      );
+    }
+
+    const response = UserMapper.toResponseDto(user);
+
+    return response;
+  }
+
   async create(user: CreateUserDto): Promise<UserResponseDto> {
     this.logger.info({ user }, 'Iniciando criação de usuário.');
 

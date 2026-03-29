@@ -44,6 +44,14 @@ export class UsersController {
     return Ok('Usuário encontrado com sucesso.', response);
   }
 
+  @HttpCode(200)
+  @Get('by-email/:email')
+  async getByEmail(@Param('email') email: string) {
+    const response = await this.usersService.getByEmail(email);
+
+    return Ok('Usuário encontrado com sucesso.', response);
+  }
+
   @HttpCode(201)
   @Post()
   async create(@Body() user: CreateUserDto) {

@@ -22,6 +22,7 @@ describe('UsersController', () => {
     const mockService: jest.Mocked<IUsersService> = {
       getAll: jest.fn(),
       getById: jest.fn(),
+      getByEmail: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
       addRoles: jest.fn(),
@@ -74,6 +75,33 @@ describe('UsersController', () => {
         data: mockUser,
         success: true,
       });
+    });
+  });
+
+  describe('getByEmail', () => {
+    it('should return a user when found', async () => {
+      service.getByEmail.mockResolvedValue(mockUser);
+
+      const result = await controller.getByEmail('user@test.com');
+
+      expect(service.getByEmail).toHaveBeenCalledWith('user@test.com');
+      expect(result).toEqual({
+        message: 'Usuário encontrado com sucesso.',
+        data: mockUser,
+        success: true,
+      });
+    });
+
+    it('should throw if user not found', async () => {
+      service.getByEmail.mockRejectedValue(
+        new Error('Usuário não encontrado.'),
+      );
+
+      await expect(controller.getByEmail('notfound@test.com')).rejects.toThrow(
+        'Usuário não encontrado.',
+      );
+
+      expect(service.getByEmail).toHaveBeenCalledWith('notfound@test.com');
     });
   });
 
