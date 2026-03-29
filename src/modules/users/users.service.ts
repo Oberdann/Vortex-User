@@ -11,6 +11,7 @@ import { UserEmailAlreadyExistsException } from './exceptions/user-email-already
 import { User } from 'generated/prisma/client';
 import { UsersListResponseDto } from './dtos/output/user-list-response-dto';
 import { UserResponseDto } from './dtos/output/user-response-dto';
+import { UserAuthResponseDto } from './dtos/output/user-auth-response-dto';
 
 @Injectable()
 export class UsersService implements IUsersService {
@@ -27,7 +28,7 @@ export class UsersService implements IUsersService {
     return response;
   }
 
-  async getById(id: string) {
+  async getById(id: string): Promise<UserResponseDto> {
     const user = await this.findUserOrFail(id);
 
     const response = UserMapper.toResponseDto(user);
@@ -35,7 +36,7 @@ export class UsersService implements IUsersService {
     return response;
   }
 
-  async getByEmail(email: string) {
+  async getByEmail(email: string): Promise<UserAuthResponseDto> {
     const user = await this.prisma.user.findFirst({
       where: { email },
     });
@@ -51,7 +52,7 @@ export class UsersService implements IUsersService {
       );
     }
 
-    const response = UserMapper.toResponseDto(user);
+    const response = UserMapper.toAuthDto(user);
 
     return response;
   }
@@ -77,7 +78,10 @@ export class UsersService implements IUsersService {
     const userEntity = UserMapper.toPrismaCreate(user);
 
     const createdUser = await this.prisma.user.create({
-      data: userEntity,
+      data: {
+        ...userEntity,
+        roles: ['USER'],
+      },
     });
 
     this.logger.info({ userId: createdUser.id }, 'Usuário criado com sucesso.');

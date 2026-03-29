@@ -25,7 +25,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new MetricsInterceptor());
 
   const config = new DocumentBuilder()
-    .setTitle('Vortex API - Userse')
+    .setTitle('Vortex API - Users')
     .setDescription('Microsserviço para usuários do ecommerce Vortex')
     .setVersion('0.0.1')
     .addBearerAuth(
