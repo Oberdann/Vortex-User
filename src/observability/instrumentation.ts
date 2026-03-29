@@ -4,7 +4,7 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { PrismaInstrumentation } from '@prisma/instrumentation';
 
 const sdk = new NodeSDK({
-  serviceName: 'products-service',
+  serviceName: 'users-service',
   traceExporter: new OTLPTraceExporter({
     url: `${process.env.OTEL_EXPORTER_OTLP_ENDPOINT}/v1/traces`,
   }),
