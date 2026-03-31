@@ -12,6 +12,7 @@ import { User } from 'generated/prisma/client';
 import { UsersListResponseDto } from './dtos/output/user-list-response-dto';
 import { UserResponseDto } from './dtos/output/user-response-dto';
 import { UserAuthResponseDto } from './dtos/output/user-auth-response-dto';
+import { UserRoles } from 'generated/prisma/enums';
 
 @Injectable()
 export class UsersService implements IUsersService {
@@ -126,7 +127,7 @@ export class UsersService implements IUsersService {
     return UserMapper.toResponseDto(updatedUser);
   }
 
-  async addRoles(id: string, roles: string[]): Promise<UserResponseDto> {
+  async addRoles(id: string, roles: UserRoles[]): Promise<UserResponseDto> {
     const user = await this.findUserOrFail(id);
 
     this.logger.info({ userId: id, roles }, 'Adicionando roles ao usuário.');
@@ -141,12 +142,14 @@ export class UsersService implements IUsersService {
     return UserMapper.toResponseDto(updatedUser);
   }
 
-  async removeRoles(id: string, roles: string[]): Promise<UserResponseDto> {
+  async removeRoles(id: string, roles: UserRoles[]): Promise<UserResponseDto> {
     const user = await this.findUserOrFail(id);
 
     this.logger.info({ userId: id, roles }, 'Removendo roles do usuário.');
 
-    const updatedRoles = user.roles.filter((role) => !roles.includes(role));
+    const rolesSet = new Set(roles);
+
+    const updatedRoles = user.roles.filter((role) => !rolesSet.has(role));
 
     const updatedUser = await this.prisma.user.update({
       where: { id },

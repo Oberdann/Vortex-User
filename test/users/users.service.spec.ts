@@ -2,10 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from 'src/modules/users/users.service';
 import { PrismaService } from 'src/database/prisma.service';
 import { UserMapper } from 'src/modules/users/mapper/users.mapper';
-
 import { UserNotFoundException } from 'src/modules/users/exceptions/user-not-found-exception';
 import { UserEmailAlreadyExistsException } from 'src/modules/users/exceptions/user-email-already-exists-exception';
 import { PinoLogger } from 'nestjs-pino';
+import { UserRoles } from 'generated/prisma/enums';
 
 jest.mock('src/modules/users/mapper/users.mapper');
 
@@ -29,7 +29,7 @@ describe('UsersService', () => {
     name: 'User 1',
     email: 'user@test.com',
     password: 'hashed-password',
-    roles: ['user'],
+    roles: [UserRoles.USER],
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -102,7 +102,7 @@ describe('UsersService', () => {
   describe('getByEmail', () => {
     it('should return user by email', async () => {
       prisma.user.findFirst.mockResolvedValue(mockUser);
-      (UserMapper.toResponseDto as jest.Mock).mockReturnValue(mockUser);
+      (UserMapper.toAuthDto as jest.Mock).mockReturnValue(mockUser);
 
       const result = await service.getByEmail('user@test.com');
 
@@ -195,18 +195,18 @@ describe('UsersService', () => {
       prisma.user.findUnique.mockResolvedValue(mockUser);
       prisma.user.update.mockResolvedValue({
         ...mockUser,
-        roles: ['user', 'admin'],
+        roles: [UserRoles.USER, UserRoles.ADMIN],
       });
 
       (UserMapper.toResponseDto as jest.Mock).mockReturnValue({
         ...mockUser,
-        roles: ['user', 'admin'],
+        roles: [UserRoles.USER, UserRoles.ADMIN],
       });
 
-      const result = await service.addRoles('1', ['admin']);
+      const result = await service.addRoles('1', [UserRoles.ADMIN]);
 
       expect(prisma.user.update).toHaveBeenCalled();
-      expect(result.roles).toContain('admin');
+      expect(result.roles).toContain(UserRoles.ADMIN);
     });
   });
 
@@ -214,23 +214,23 @@ describe('UsersService', () => {
     it('should remove roles from user', async () => {
       prisma.user.findUnique.mockResolvedValue({
         ...mockUser,
-        roles: ['user', 'admin'],
+        roles: [UserRoles.USER, UserRoles.ADMIN],
       });
 
       prisma.user.update.mockResolvedValue({
         ...mockUser,
-        roles: ['user'],
+        roles: [UserRoles.USER],
       });
 
       (UserMapper.toResponseDto as jest.Mock).mockReturnValue({
         ...mockUser,
-        roles: ['user'],
+        roles: [UserRoles.USER],
       });
 
-      const result = await service.removeRoles('1', ['admin']);
+      const result = await service.removeRoles('1', [UserRoles.ADMIN]);
 
       expect(prisma.user.update).toHaveBeenCalled();
-      expect(result.roles).not.toContain('admin');
+      expect(result.roles).not.toContain(UserRoles.ADMIN);
     });
   });
 

@@ -1,8 +1,10 @@
+import { UserRoles } from 'generated/prisma/enums';
+
 export class UserResponseDto {
   id: string;
   name: string;
   email: string;
-  roles: string[];
+  roles: UserRoles[];
   createdAt: Date;
   updatedAt: Date;
 }

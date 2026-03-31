@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { UserRoles } from 'generated/prisma/enums';
 import { IUsersService } from 'src/modules/users/contracts/i-users-service';
 import { CreateUserDto } from 'src/modules/users/dtos/input/create-user-dto';
 import { UpdateUserDto } from 'src/modules/users/dtos/input/update-user-dto';
@@ -13,7 +14,7 @@ describe('UsersController', () => {
     name: 'User 1',
     email: 'user@test.com',
     password: 'hashed-password',
-    roles: ['user'],
+    roles: [UserRoles.USER],
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -149,7 +150,7 @@ describe('UsersController', () => {
 
   describe('addRoles', () => {
     it('should add roles to user', async () => {
-      const dto = { roles: ['admin'] };
+      const dto = { roles: [UserRoles.ADMIN] };
 
       service.addRoles.mockResolvedValue(mockUser);
 
@@ -167,7 +168,7 @@ describe('UsersController', () => {
 
   describe('removeRoles', () => {
     it('should remove roles from user', async () => {
-      const dto = { roles: ['admin'] };
+      const dto = { roles: [UserRoles.ADMIN] };
 
       service.removeRoles.mockResolvedValue(mockUser);
 

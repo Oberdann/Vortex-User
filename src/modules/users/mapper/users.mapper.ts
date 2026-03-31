@@ -1,4 +1,4 @@
-import { Prisma, User } from 'generated/prisma/client';
+import { Prisma, User, UserRoles } from 'generated/prisma/client';
 import { CreateUserDto } from '../dtos/input/create-user-dto';
 import { UpdateUserDto } from '../dtos/input/update-user-dto';
 import { UserResponseDto } from '../dtos/output/user-response-dto';
@@ -34,7 +34,7 @@ export class UserMapper {
       name: createDto.name,
       email: createDto.email,
       password: createDto.password,
-      roles: [],
+      roles: [UserRoles.USER],
     };
   }
 
