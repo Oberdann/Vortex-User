@@ -1,3 +1,4 @@
+import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 import { IUsersService } from './contracts/i-users-service';
 import { PrismaService } from 'src/database/prisma.service';
@@ -43,14 +44,9 @@ export class UsersService implements IUsersService {
     });
 
     if (!user) {
-      this.logger.warn(
-        { email },
-        'Usuário procurado com email não encontrado.',
-      );
+      this.logger.warn({}, 'Usuário procurado não encontrado.');
 
-      throw new UserNotFoundException(
-        `Usuário com email ${email} não encontrado.`,
-      );
+      throw new UserNotFoundException('Usuário não encontrado.');
     }
 
     const response = UserMapper.toAuthDto(user);
@@ -59,24 +55,23 @@ export class UsersService implements IUsersService {
   }
 
   async create(user: CreateUserDto): Promise<UserResponseDto> {
-    this.logger.info({ user }, 'Iniciando criação de usuário.');
+    this.logger.info({}, 'Iniciando criação de usuário.');
 
     const existingUser = await this.prisma.user.findFirst({
       where: { email: user.email },
     });
 
     if (existingUser) {
-      this.logger.warn(
-        { email: user.email },
-        'Tentativa de criar usuário com email duplicado.',
-      );
+      this.logger.warn({}, 'Tentativa de criar usuário com email duplicado.');
 
       throw new UserEmailAlreadyExistsException(
         'Já existe um usuário com esse email.',
       );
     }
 
-    const userEntity = UserMapper.toPrismaCreate(user);
+    const passwordHash = await bcrypt.hash(user.password, 10);
+
+    const userEntity = UserMapper.toPrismaCreate(user, passwordHash);
 
     const createdUser = await this.prisma.user.create({
       data: {
@@ -105,7 +100,7 @@ export class UsersService implements IUsersService {
 
       if (userWithSameEmail) {
         this.logger.warn(
-          { email: user.email },
+          {},
           'Tentativa de atualizar usuário com email duplicado.',
         );
 

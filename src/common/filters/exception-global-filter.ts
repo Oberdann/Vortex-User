@@ -15,6 +15,10 @@ export class ExceptionGlobalFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
     const res = host.switchToHttp().getResponse<Response>();
     const req = host.switchToHttp().getRequest<Request>();
+    const requestUrl = req.url?.replace(
+      /(\/users\/by-email\/)[^/?]+/i,
+      '$1[REDACTED]',
+    );
 
     const span = trace.getActiveSpan();
     const traceId = span?.spanContext().traceId;
@@ -34,7 +38,7 @@ export class ExceptionGlobalFilter implements ExceptionFilter {
       this.logger.error(
         {
           method: req.method,
-          url: req.url,
+          url: requestUrl,
           status,
           traceId,
           err: {
@@ -51,7 +55,7 @@ export class ExceptionGlobalFilter implements ExceptionFilter {
     this.logger.error(
       {
         method: req.method,
-        url: req.url,
+        url: requestUrl,
         traceId,
         err: exception,
       },

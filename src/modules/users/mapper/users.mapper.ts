@@ -29,11 +29,11 @@ export class UserMapper {
     };
   }
 
-  static toPrismaCreate(createDto: CreateUserDto) {
+  static toPrismaCreate(createDto: CreateUserDto, passwordHash: string) {
     return {
       name: createDto.name,
       email: createDto.email,
-      password: createDto.password,
+      password: passwordHash,
       roles: [UserRoles.USER],
     };
   }
@@ -45,7 +45,6 @@ export class UserMapper {
     const data: Prisma.UserUpdateInput = {
       name: updateDto.name ?? existingUser.name,
       email: updateDto.email ?? existingUser.email,
-      password: updateDto.password ?? existingUser.password,
     };
 
     return data;
